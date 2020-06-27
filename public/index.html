@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Задание 2</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background-color: #e8e8e8;
+        }
+
+        #controls {
+            padding: 80px 0 0;
+            position: relative;
+            z-index: 1;
+            height: 20vh;
+            text-align: center;
+            background-color: #ffffff;
+        }
+
+        #boxes {
+            padding-top: 20px;
+            max-width: 980px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div id="controls">
+    <input type="number" min="0" max="100" step="1" class="js-input" />
+    <button type="button" data-action="create">Создать</button>
+    <button type="button" data-action="destroy">Очистить</button>
+</div>
+
+<div id="boxes"></div>
+
+<script src="index.js"></script>
+
+</body>
+</html>
