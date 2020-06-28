@@ -1,57 +1,55 @@
-const controlsBoxes = {
-    init() {
-        this.controls = document.querySelector('#controls');
-        this.boxes = document.querySelector('#boxes');
-        this.input = document.querySelector('.js-input');
-        this.widthHeight = 30;
-        this.counter = 0;
-        this.rgbMaxColor = 225;
-        this.incrementParameter = 10;
-        this.defaultAmount = 1;
 
-        this.handler();
-    },
-    destroyBoxes() {
-        /**
-         * @type {string}
-         * Функция destroyBoxes(), которая очищает div#boxes.
-         */
-        this.boxes.innerHTML = ''
-        this.input.value = this.defaultAmount;
-        this.counter = 0;
-    },
-    createBoxes(amount) {
-        /**
-         * @type {number}
-         * функция объявляет 1 параметр amount - число. Функция
-         * создает столько div, сколько указано в amount и добавляет их в div#boxes.
-         */
+const search = document.querySelector('#search-form input')
+const resultSearch = document.querySelector('#resultSearch');
+const textNotFound = document.querySelector('.js-text-not-found');
 
-        const amountCount = Number(amount) + this.boxes.childNodes.length
-        while (this.counter  < amountCount) {
-            const color = this.getRandomArbitrary(1)
-            const count = this.counter * this.incrementParameter;
-            const countWidthHeight = this.widthHeight + count;
-            const cssText = `width: ${countWidthHeight}px;height: ${countWidthHeight}px;background: rgb(${color}, ${color}, ${color});`;
+const searchRequest = async $event => {
+    const request = $event.target.value;
+    resultSearch.innerHTML = '';
 
-            const div = document.createElement('div');
-            div.style.cssText = cssText;
-            this.boxes.appendChild(div)
+    if ( request.trim().length ) {
+        const url = `https://pixabay.com/api/?key=17249207-48a5b3f3cc751c0f0850b30ec&q=${request}&image_type=photo`
+        
+        try {
+            const { data } = await axios.get(url);
+            textNotFound.setAttribute('hidden', 'hidden')
 
-            this.counter++
+            // Карточка
+            for ( let key of data.hits) {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                const img = document.createElement('img');
+
+                li.className = 'boxes__list-item';
+
+                // ссылка на большое изображение
+                a.href = key.pageURL
+                a.target = '_blank'
+
+                // ссылка на маленькое изображение
+                img.src = key.webformatURL;
+                img.className = 'img-responsive'
+
+                // ссылка на большое изображение
+                img.setAttribute('data-source', key.largeImageURL)
+
+                // описание
+                img.alt = key.tags;
+
+                // Набор элементов списка с карточками изображений
+                a.appendChild(img)
+                li.appendChild(a)
+                resultSearch.appendChild(li)
+            }
+
+            if (!data.hits.length) {
+                textNotFound.removeAttribute('hidden')
+            }
+
+        } catch (err) {
+            textNotFound.removeAttribute('hidden')
         }
-    },
-    getRandomArbitrary(min) {
-        return Math.random() * (this.rgbMaxColor - min) + min;
-    },
-    handler() {
-        this.controls.addEventListener('click', e => {
-            const target = e.target;
-            const data = target.getAttribute('data-action');
-
-            !!data && this[`${data}Boxes`](this.input.value || this.defaultAmount)
-        })
     }
 }
 
-controlsBoxes.init();
+search.addEventListener('input', _.debounce(searchRequest, 150))

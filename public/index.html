@@ -13,10 +13,20 @@
         html,
         body {
             height: 100%;
-            background-color: #ffeb3b30;
+            background-color: #dcdcda;
         }
 
-        #controls {
+        li {
+            list-style-type: none;
+        }
+
+        .img-responsive {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .controls {
             padding: 80px 0;
             position: relative;
             z-index: 1;
@@ -24,7 +34,7 @@
             background-color: #ffffff;
         }
 
-        #boxes {
+        .boxes {
             padding-top: 20px;
             max-width: 980px;
             width: 100%;
@@ -33,19 +43,49 @@
             display: flex;
             flex-wrap: wrap;
         }
+
+        .boxes__list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .boxes__list-item {
+            max-width: 300px;
+            padding: 10px;
+        }
+
+        .boxes__text {
+            text-align: center;
+            width: 100%;
+            font-family: sans-serif;
+        }
+
     </style>
 </head>
 <body>
 
-    <div id="controls">
-        <input type="number" min="0" max="100" step="1" value="1" class="js-input" />
-        <button type="button" data-action="create">Создать</button>
-        <button type="button" data-action="destroy">Очистить</button>
-    </div>
+<div class="controls">
+    <form id="search-form">
+        <input
+                type="text"
+                name="query"
+                autocomplete="off"
+                placeholder="Search images..."
+        />
+    </form>
+</div>
 
-    <div id="boxes"></div>
+<div class="boxes">
+    <ul id="resultSearch" class="boxes__list"></ul>
 
-    <script src="index.js"></script>
+    <div class="boxes__text js-text-not-found" hidden><h3>NOT FOUND</h3></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"
+        integrity="sha256-T/f7Sju1ZfNNfBh7skWn0idlCBcI3RwdLSS4/I7NQKQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"
+        integrity="sha256-VeNaFBVDhoX3H+gJ37DpT/nTuZTdjYro9yBruHjVmoQ=" crossorigin="anonymous"></script>
+<script src="index.js"></script>
 
 </body>
 </html>
