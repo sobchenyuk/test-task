@@ -6,7 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "stast": "nodemon server.js",
-    "server": "nodemon server.js --watch public",
     "browser-sync": "browser-sync start --proxy localhost:9000 --files public"
   },
   "repository": {
