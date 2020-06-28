@@ -6,5 +6,3 @@
 [Exercise 2](https://github.com/sobchenyuk/test-task/tree/exercise_2)
 
 [Exercise 3](https://github.com/sobchenyuk/test-task/tree/exercise_3)
-
-[Exercise 4](https://github.com/sobchenyuk/test-task/tree/exercise_4)
