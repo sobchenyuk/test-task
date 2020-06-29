@@ -3,12 +3,22 @@ const search = document.querySelector('#search-form input')
 const resultSearch = document.querySelector('#resultSearch');
 const textNotFound = document.querySelector('.js-text-not-found');
 
+const setRequest = (request, page = 1) =>
+    `https://pixabay.com/api/?key=17249207-48a5b3f3cc751c0f0850b30ec&q=${request}&page=${page}&image_type=photo`;
+
+const modals = ( $event, { h, w, src } ) => {
+    $event.preventDefault()
+    basicLightbox.create(
+        `<img width="${h}" height="${w}" src="${src}">`
+    ).show()
+}
+
 const searchRequest = async $event => {
     const request = $event.target.value;
     resultSearch.innerHTML = '';
 
     if ( request.trim().length ) {
-        const url = `https://pixabay.com/api/?key=17249207-48a5b3f3cc751c0f0850b30ec&q=${request}&image_type=photo`
+        const url = setRequest(request)
         
         try {
             const { data } = await axios.get(url);
@@ -40,6 +50,12 @@ const searchRequest = async $event => {
                 a.appendChild(img)
                 li.appendChild(a)
                 resultSearch.appendChild(li)
+
+                a.addEventListener('click', ev => modals(ev, {
+                    h: key.imageHeight,
+                    w: key.imageWidth,
+                    src: key.largeImageURL
+                }))
             }
 
             if (!data.hits.length) {
@@ -48,6 +64,7 @@ const searchRequest = async $event => {
 
         } catch (err) {
             textNotFound.removeAttribute('hidden')
+            resultSearch.innerHTML = '';
         }
     }
 }
