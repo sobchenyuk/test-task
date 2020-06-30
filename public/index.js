@@ -9,7 +9,7 @@ const setRequest = (request, page = 1) =>
 const modals = ( $event, { h, w, src } ) => {
     $event.preventDefault()
     basicLightbox.create(
-        `<img width="${h}" height="${w}" src="${src}">`
+        `<img width="${w}" height="${h}" src="${src}">`
     ).show()
 }
 
