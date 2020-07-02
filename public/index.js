@@ -22,7 +22,7 @@ const imageSearch = {
                     </a>
                 </li>`
     },
-    modals: $event => { // модпльное окно
+    modals: $event => { // модальное окно
         $event.preventDefault();
         const src = $event.target.getAttribute('data-source');
 
