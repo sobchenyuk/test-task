@@ -1,72 +1,65 @@
+// задание 3
 
-const search = document.querySelector('#search-form input')
-const resultSearch = document.querySelector('#resultSearch');
-const textNotFound = document.querySelector('.js-text-not-found');
+const imageSearch = {
+    init() {
+        this.search = document.querySelector('#search-form input')
+        this.resultSearch = document.querySelector('#resultSearch');
+        this.textNotFound = document.querySelector('.js-text-not-found');
+        this.page = 1;
 
-const setRequest = (request, page = 1) =>
-    `https://pixabay.com/api/?key=17249207-48a5b3f3cc751c0f0850b30ec&q=${request}&page=${page}&image_type=photo`;
+        this.search.addEventListener('input', _.debounce(this.searchRequest.bind(this), 150));
+        this.resultSearch.addEventListener('click', this.modals) // делегирование
+    },
+    createTemplateGallery: props => { // построение галереии
+        return `<li class="boxes__list-item">
+                    <a href="${props.pageURL}" target="_blank">
+                        <img 
+                            src="${props.webformatURL}" 
+                            class="img-responsive"
+                            data-source="${props.largeImageURL}"
+                            alt="${props.tags}"
+                        />
+                    </a>
+                </li>`
+    },
+    modals: $event => { // модпльное окно
+        $event.preventDefault();
+        const src = $event.target.getAttribute('data-source');
 
-const modals = ( $event, { h, w, src } ) => {
-    $event.preventDefault()
-    basicLightbox.create(
-        `<img width="${w}" height="${h}" src="${src}">`
-    ).show()
-}
+        basicLightbox.create(
+            `<img src="${src}" />`
+        ).show()
+    },
+    getRequest(request) {
+        return `https://pixabay.com/api/?key=17249207-48a5b3f3cc751c0f0850b30ec&q=${request}&page=${this.page}&image_type=photo`;
+    },
+    async searchRequest($event) {
+        const request = $event.target.value;
+        this.resultSearch.innerHTML = '';
 
-const searchRequest = async $event => {
-    const request = $event.target.value;
-    resultSearch.innerHTML = '';
+        if (request.trim().length) {
+            const url = this.getRequest(request)
 
-    if ( request.trim().length ) {
-        const url = setRequest(request)
-        
-        try {
-            const { data } = await axios.get(url);
-            textNotFound.setAttribute('hidden', 'hidden')
+            try {
+                const { data: { hits:data } } = await axios.get(url);
 
-            // Карточка
-            for ( let key of data.hits) {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                const img = document.createElement('img');
+                // Карточка
+                for (let props of data) {
+                    this.resultSearch.innerHTML += this.createTemplateGallery(props)
+                }
 
-                li.className = 'boxes__list-item';
+                if (!data.length) {
+                    this.textNotFound.removeAttribute('hidden')
+                } else {
+                    this.textNotFound.setAttribute('hidden', 'hidden')
+                }
 
-                // ссылка на большое изображение
-                a.href = key.pageURL
-                a.target = '_blank'
-
-                // ссылка на маленькое изображение
-                img.src = key.webformatURL;
-                img.className = 'img-responsive'
-
-                // ссылка на большое изображение
-                img.setAttribute('data-source', key.largeImageURL)
-
-                // описание
-                img.alt = key.tags;
-
-                // Набор элементов списка с карточками изображений
-                a.appendChild(img)
-                li.appendChild(a)
-                resultSearch.appendChild(li)
-
-                a.addEventListener('click', ev => modals(ev, {
-                    h: key.imageHeight,
-                    w: key.imageWidth,
-                    src: key.largeImageURL
-                }))
+            } catch (err) {
+                this.textNotFound.removeAttribute('hidden')
+                this.resultSearch.innerHTML = '';
             }
-
-            if (!data.hits.length) {
-                textNotFound.removeAttribute('hidden')
-            }
-
-        } catch (err) {
-            textNotFound.removeAttribute('hidden')
-            resultSearch.innerHTML = '';
         }
     }
 }
 
-search.addEventListener('input', _.debounce(searchRequest, 150))
+imageSearch.init();

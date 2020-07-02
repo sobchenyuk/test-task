@@ -5,7 +5,7 @@
   "main": "public/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "stast": "nodemon server.js",
+    "start": "nodemon server.js",
     "browser-sync": "browser-sync start --proxy localhost:9000 --files public"
   },
   "repository": {
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/sobchenyuk/test-task#readme",
   "devDependencies": {},
   "dependencies": {
+    "browser-sync": "^2.26.7",
     "express": "^4.17.1",
     "nodemon": "^2.0.4"
   }
