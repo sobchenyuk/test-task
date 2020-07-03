@@ -5,6 +5,7 @@ const imageSearch = {
         this.search = document.querySelector('#search-form input')
         this.resultSearch = document.querySelector('#resultSearch');
         this.textNotFound = document.querySelector('.js-text-not-found');
+
         this.page = 1;
 
         this.search.addEventListener('input', _.debounce(this.searchRequest.bind(this), 150));
@@ -45,12 +46,24 @@ const imageSearch = {
 
                 // Карточка
                 for (let props of data) {
-                    this.resultSearch.innerHTML += this.createTemplateGallery(props)
+                    this.resultSearch.innerHTML += await this.createTemplateGallery(props)
                 }
 
                 if (!data.length) {
                     this.textNotFound.removeAttribute('hidden')
                 } else {
+
+                    const observer = new IntersectionObserver(entries => {
+                        const firstEntry = entries[0];
+                        if (firstEntry.isIntersecting) {
+                            console.log('test')
+                        }
+                    });
+
+                    const scrollTo = document.querySelector("#scrollTo");
+                    observer.observe(scrollTo);
+
+                    // new IntersectionObserver(callback, this.observerOption);
                     this.textNotFound.setAttribute('hidden', 'hidden')
                 }
 
