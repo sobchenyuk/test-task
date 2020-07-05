@@ -1,27 +1,27 @@
 // задание 3
 
+const API_KEY = '17249207-48a5b3f3cc751c0f0850b30ec';
+
 const imageSearch = {
     init() {
         this.search = document.querySelector('#search-form input')
         this.resultSearch = document.querySelector('#resultSearch');
+        this.sentinel = document.querySelector('#sentinel');
+
         this.textNotFound = document.querySelector('.js-text-not-found');
 
-        this.page = 1;
-
-        this.search.addEventListener('input', _.debounce(this.searchRequest.bind(this), 150));
-        this.resultSearch.addEventListener('click', this.modals) // делегирование
+        this.handler();
+        this.errorResponse = false;
     },
     createTemplateGallery: props => { // построение галереии
-        return `<li class="boxes__list-item">
-                    <a href="${props.pageURL}" target="_blank">
-                        <img 
-                            src="${props.webformatURL}" 
-                            class="img-responsive"
-                            data-source="${props.largeImageURL}"
-                            alt="${props.tags}"
-                        />
-                    </a>
-                </li>`
+        return `<a href="${props.pageURL}" target="_blank">
+                     <img 
+                         src="${props.webformatURL}" 
+                         class="img-responsive"
+                         data-source="${props.largeImageURL}"
+                         alt="${props.tags}"
+                     
+                 </a>`
     },
     modals: $event => { // модальное окно
         $event.preventDefault();
@@ -31,47 +31,77 @@ const imageSearch = {
             `<img src="${src}" />`
         ).show()
     },
-    getRequest(request) {
-        return `https://pixabay.com/api/?key=17249207-48a5b3f3cc751c0f0850b30ec&q=${request}&page=${this.page}&image_type=photo`;
+    getRequest(request, page = 1) {
+        return `https://pixabay.com/api/?key=${API_KEY}&q=${request}&page=${page}&image_type=photo`;
+    },
+    clearItem() {
+        const childrenList = this.resultSearch.querySelectorAll('.boxes__list-item');
+        if ( childrenList ) {
+            for ( let item of childrenList) {
+                item.remove()
+            }
+        }
+    },
+    createItem: async function (request, page) {
+        try {
+
+            let response = await fetch(this.getRequest(request, page));
+
+            if (response.status >= 200 && response.status <= 299) {
+
+                let data = await response.json()
+
+                const {hits, totalHits} = data;
+
+                if (!totalHits) {
+                    this.textNotFound.removeAttribute('hidden');
+                } else {
+                    this.textNotFound.setAttribute('hidden', 'hidden')
+
+                    // Карточка
+                    for (let props of hits) {
+                        const li = document.createElement('li')
+                        li.className = 'boxes__list-item';
+                        li.insertAdjacentHTML('afterBegin', `${this.createTemplateGallery(props)}`);
+                        this.resultSearch.appendChild(li)
+                    }
+                }
+            } else {
+                this.errorResponse = true
+                console.log(response.status, response.statusText);
+            }
+
+        } catch (err) {
+            this.textNotFound.removeAttribute('hidden')
+            this.clearItem();
+            this.search.value = ''
+        }
     },
     async searchRequest($event) {
         const request = $event.target.value;
-        this.resultSearch.innerHTML = '';
+        this.clearItem();
+        let i = 1
 
-        if (request.trim().length) {
-            const url = this.getRequest(request)
+        this.intersectionObserver = new IntersectionObserver(entries => {
 
-            try {
-                const { data: { hits:data } } = await axios.get(url);
-
-                // Карточка
-                for (let props of data) {
-                    this.resultSearch.innerHTML += await this.createTemplateGallery(props)
+            if (request.trim().length && !this.errorResponse) {
+                if (entries.some(entry => entry.intersectionRatio > 0)) {
+                    this.createItem(request, i)
+                    this.resultSearch.appendChild(this.sentinel);
+                    i++
                 }
-
-                if (!data.length) {
-                    this.textNotFound.removeAttribute('hidden')
-                } else {
-
-                    const observer = new IntersectionObserver(entries => {
-                        const firstEntry = entries[0];
-                        if (firstEntry.isIntersecting) {
-                            console.log('test')
-                        }
-                    });
-
-                    const scrollTo = document.querySelector("#scrollTo");
-                    observer.observe(scrollTo);
-
-                    // new IntersectionObserver(callback, this.observerOption);
-                    this.textNotFound.setAttribute('hidden', 'hidden')
-                }
-
-            } catch (err) {
-                this.textNotFound.removeAttribute('hidden')
-                this.resultSearch.innerHTML = '';
+            } else {
+                this.textNotFound.removeAttribute('hidden');
+                this.clearItem();
+                this.search.value = ''
             }
-        }
+        })
+
+        await this.intersectionObserver.observe(this.sentinel);
+    },
+    handler() {
+        this.resultSearch.addEventListener('click', this.modals) // делегирование
+        this.search.addEventListener('input', _.debounce(this.searchRequest.bind(this), 150));
     }
 }
 
