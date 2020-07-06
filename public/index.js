@@ -1,6 +1,7 @@
 // задание 3
 
 const API_KEY = '17249207-48a5b3f3cc751c0f0850b30ec';
+let i = 1;
 
 const imageSearch = {
     init() {
@@ -10,8 +11,9 @@ const imageSearch = {
 
         this.textNotFound = document.querySelector('.js-text-not-found');
 
+        this.request = '';
+
         this.handler();
-        this.errorResponse = false;
     },
     createTemplateGallery: props => { // построение галереии
         return `<a href="${props.pageURL}" target="_blank">
@@ -45,7 +47,7 @@ const imageSearch = {
     createItem: async function (request, page) {
         try {
 
-            let response = await fetch(this.getRequest(request, page));
+            let response = this.request ? await fetch(this.getRequest(request, page)) : { status: 0 };
 
             if (response.status >= 200 && response.status <= 299) {
 
@@ -67,7 +69,6 @@ const imageSearch = {
                     }
                 }
             } else {
-                this.errorResponse = true
                 console.log(response.status, response.statusText);
             }
 
@@ -75,33 +76,37 @@ const imageSearch = {
             this.textNotFound.removeAttribute('hidden')
             this.clearItem();
             this.search.value = ''
+            this.request = '';
+            i = 1;
         }
     },
     async searchRequest($event) {
-        const request = $event.target.value;
+        this.request = $event.target.value;
         this.clearItem();
-        let i = 1
 
-        this.intersectionObserver = new IntersectionObserver(entries => {
-
-            if (request.trim().length && !this.errorResponse) {
-                if (entries.some(entry => entry.intersectionRatio > 0)) {
-                    this.createItem(request, i)
-                    this.resultSearch.appendChild(this.sentinel);
-                    i++
-                }
-            } else {
-                this.textNotFound.removeAttribute('hidden');
-                this.clearItem();
-                this.search.value = ''
-            }
-        })
-
-        await this.intersectionObserver.observe(this.sentinel);
+        await this.createItem(this.request, i)
     },
     handler() {
         this.resultSearch.addEventListener('click', this.modals) // делегирование
         this.search.addEventListener('input', _.debounce(this.searchRequest.bind(this), 150));
+
+        this.intersectionObserver = new IntersectionObserver(entries => {
+
+            entries.forEach(entry => {
+                const { isIntersecting } = entry
+
+                if(isIntersecting) {
+                    if (this.request.trim().length) {
+                        if (entries.some(entry => entry.intersectionRatio > 0)) {
+                            this.createItem(this.request, i)
+                            i++
+                        }
+                    }
+                }
+            });
+        })
+
+        this.intersectionObserver.observe(this.sentinel);
     }
 }
 
