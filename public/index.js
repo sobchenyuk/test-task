@@ -83,6 +83,7 @@ const imageSearch = {
     async searchRequest($event) {
         this.request = $event.target.value;
         this.clearItem();
+        i = 1
 
         await this.createItem(this.request, i)
     },
@@ -104,6 +105,9 @@ const imageSearch = {
                     }
                 }
             });
+        }, {
+            rootMargin: '40px',
+            threshold: 0.0
         })
 
         this.intersectionObserver.observe(this.sentinel);
