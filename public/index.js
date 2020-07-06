@@ -104,8 +104,8 @@ const imageSearch = {
                 if(isIntersecting) {
                     if (this.request.trim().length) {
                         if (entries.some(entry => entry.intersectionRatio > 0)) {
-                            this.createItem(this.request, i)
                             i++
+                            this.createItem(this.request, i)
                         }
                     }
                 }
