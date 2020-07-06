@@ -70,6 +70,11 @@ const imageSearch = {
                 }
             } else {
                 console.log(response.status, response.statusText);
+                this.textNotFound.removeAttribute('hidden')
+                this.clearItem();
+                this.search.value = ''
+                this.request = '';
+                i = 1;
             }
 
         } catch (err) {
